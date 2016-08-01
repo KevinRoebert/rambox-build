@@ -1,21 +1,17 @@
 'use strict';
 
-const electron = require('electron');
-// Module to control application life.
-const app = electron.app;
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
-// Module for shell
-const shell = require('electron').shell;
-// Require for menu file
+const {app, protocol, BrowserWindow, dialog, shell, Menu, ipcMain} = require('electron');
+// Menu
 const appMenu = require('./menu');
-// Require for tray file
+// Tray
 const tray = require('./tray');
 // Window State Plugin
 const windowStateKeeper = require('electron-window-state');
+// Global Settings
+var globalSettings = require('./global_settings.js');
 
-
-const MenuItem = electron.MenuItem;
+const isDev = require('electron-is-dev');
+const updater = require('./updater');
 
 // this should be placed at top of main.js to handle setup events quickly
 if (handleSquirrelEvent()) {
@@ -92,20 +88,26 @@ let isQuitting = false;
 
 function createWindow () {
 	// Load the previous state with fallback to defaults
+
 	let mainWindowState = windowStateKeeper({
 		 defaultWidth: 1000
 		,defaultHeight: 800
-		,maximize: true
+		,maximize: false
 	});
+
 	// Create the browser window using the state information
 	mainWindow = new BrowserWindow({
 		 title: 'Rambox'
-		,skipTaskbar: false
 		,icon: __dirname + '/../resources/Icon.png'
 		,x: mainWindowState.x
 		,y: mainWindowState.y
 		,width: mainWindowState.width
 		,height: mainWindowState.height
+		,backgroundColor: '#2E658E'
+		,alwaysOnTop: parseInt(globalSettings.get('always_on_top')) ? true : false
+		,autoHideMenuBar: parseInt(globalSettings.get('hide_menu_bar')) ? true : false
+		,skipTaskbar: parseInt(globalSettings.get('skip_taskbar')) ? true : false
+		,show: parseInt(globalSettings.get('start_minimized')) ? false : true
 		,webPreferences: {
 			 webSecurity: false
 			,nodeIntegration: true
@@ -113,6 +115,8 @@ function createWindow () {
 			,partition: 'persist:rambox'
 		}
 	});
+
+	if ( !parseInt(globalSettings.get('start_minimized')) && mainWindowState.isMaximized ) mainWindow.maximize();
 
 	// Let us register listeners on the window, so we can update the state
 	// automatically (the listeners will be removed when the window is closed)
@@ -124,9 +128,11 @@ function createWindow () {
 	// and load the index.html of the app.
 	mainWindow.loadURL('file://' + __dirname + '/../index.html');
 
-	electron.Menu.setApplicationMenu(appMenu);
+	Menu.setApplicationMenu(appMenu);
 
-	tray.create(mainWindow);
+	tray.create(mainWindow, mainWindowState);
+
+	if ( !isDev && process.platform === 'win32' ) updater.initialize(mainWindow);
 
 	mainWindow.on('page-title-updated', (e, title) => updateBadge(title));
 
@@ -152,7 +158,7 @@ function createWindow () {
 			if (process.platform === 'darwin') {
 				app.hide();
 			} else {
-				mainWindow.hide();
+				parseInt(globalSettings.get('keep_in_taskbar_on_close')) ? mainWindow.minimize() : mainWindow.hide();
 			}
 		}
 	});
@@ -172,8 +178,81 @@ function updateBadge(title) {
 	app.setBadgeCount(messageCount);
 }
 
-// Allow Custom sites with self certificates
-app.commandLine.appendSwitch('ignore-certificate-errors');
+const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+	// Someone tried to run a second instance, we should focus our window.
+	if (mainWindow) {
+		if (mainWindow.isMinimized()) mainWindow.restore();
+		mainWindow.focus();
+	}
+});
+
+if (shouldQuit) {
+	app.quit();
+	return;
+}
+
+var allowedURLCertificates = [];
+ipcMain.on('allowCertificate', (event, url) => {
+	allowedURLCertificates.push(require('url').parse(url).host);
+});
+app.on('certificate-error', function(event, webContents, url, error, certificate, callback) {
+	if ( allowedURLCertificates.indexOf(require('url').parse(url).host) >= 0 ) {
+		event.preventDefault();
+		callback(true);
+	} else {
+		callback(false);
+		dialog.showMessageBox(mainWindow, {
+			 title: 'Certification Error'
+			,message: 'The service with the following URL has an invalid authority certification.\n\n'+url+'\n\nYou have to remove the service and add it again, enabling the "Trust invalid authority certificates" in the Options.'
+			,buttons: ['OK']
+			,type: 'error'
+		}, function() {
+
+		});
+	}
+});
+
+
+// Code for downloading images as temporal files
+// Credit: Ghetto Skype (https://github.com/stanfieldr/ghetto-skype)
+const tmp = require('tmp');
+const mime = require('mime');
+var imageCache = {};
+ipcMain.on('image:download', function(event, url, partition) {
+	let file = imageCache[url];
+	if (file) {
+		if (file.complete) {
+			shell.openItem(file.path);
+		}
+
+		// Pending downloads intentionally do not proceed
+		return;
+	}
+
+	let tmpWindow = new BrowserWindow({
+		 show: false
+		,webPreferences: {
+			partition: partition
+		}
+	});
+
+	tmpWindow.webContents.session.once('will-download', (event, downloadItem) => {
+		imageCache[url] = file = {
+			 path: tmp.tmpNameSync() + '.' + mime.extension(downloadItem.getMimeType())
+			,complete: false
+		};
+
+		downloadItem.setSavePath(file.path);
+		downloadItem.once('done', () => {
+			tmpWindow.destroy();
+			tmpWindow = null;
+			shell.openItem(file.path);
+			file.complete = true;
+		});
+	});
+
+	tmpWindow.webContents.downloadURL(url);
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
