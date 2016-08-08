@@ -62,18 +62,7 @@ const helpSubmenu = [
 	{
 		label: 'Report an Issue...',
 		click() {
-			const body = `
-<!-- Please describe here your issue and steps to reproduce it. -->
-
-
-
-<!-- DON'T REMOVE THE FOLLOWING LINES -->
--
-> ${app.getName()} ${app.getVersion()}
-> Electron ${process.versions.electron}
-> ${process.platform} ${process.arch} ${os.release()}`;
-
-			shell.openExternal(`https://github.com/saenzramiro/rambox/issues/new?body=${encodeURIComponent(body)}`);
+			shell.openExternal('https://github.com/saenzramiro/rambox/issues/new');
 		}
 	},
 	{
