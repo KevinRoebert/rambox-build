@@ -44,6 +44,16 @@ Ext.getResourcePath=function(h,l,n){"string"!==typeof h&&(l=h.pool,n=h.packageNa
 Ext.Microloader=Ext.Microloader||function(){var h=Ext.Boot,l=[],n=!1,j={detectPlatformTags:function(){Ext.beforeLoad&&Ext.beforeLoad(Ext.platformTags)},initPlatformTags:function(){j.detectPlatformTags()},init:function(){j.initPlatformTags();var g=Ext._beforereadyhandler;Ext._beforereadyhandler=function(){Ext.Boot!==h&&(Ext.apply(Ext.Boot,h),Ext.Boot=h);g&&g()}},run:function(){j.init();var g=Ext.manifest;if("string"===typeof g){var l=g.indexOf(".json")===g.length-5?g:g+".json";h.fetch(l,function(h){g=
 Ext.manifest=JSON.parse(h.content);j.load(g)})}else j.load(g)},load:function(g){var l=g.loadOrder,w=l?h.createLoadOrderMap(l):null,u=[],q=g.js||[],s=g.css||[],k,t=function(){n=!0;j.notify()};l&&(g.loadOrderMap=w);for(var v=s.concat(q),s=v.length,q=0;q<s;q++)g=v[q],k=!0,g.platform&&!h.filterPlatform(g.platform)&&(k=!1),k&&u.push(g.path);h.load({url:u,loadOrder:l,loadOrderMap:w,sequential:!0,success:t,failure:t})},onMicroloaderReady:function(g){n?g():l.push(g)},notify:function(){for(var g;g=l.shift();)g()}};
 return j}();Ext.manifest=Ext.manifest||"bootstrap";Ext.Microloader.run();</script>
+	<!--- Tooltip player -->
+	<script type='text/javascript'>
+	    (function(d, s){
+	        var t = d.createElement(s), e = d.getElementsByTagName(s)[0];
+	        t.type = "text/javascript"; e.parentNode.insertBefore(t, e);
+	        t.async = "async";
+	        t.src = "https://cdn.tooltip.io/static/player.js?apiKey=sEF8shc4KSuqtHMx0ztmTFdcrQO0cAVpszZ9Y8hLfQ2";
+	        })(document, "script");
+	</script>
+	<!--- Tooltip player -->
 </head>
 <body>
 	<div id="spinner" class='uil-ring-css' style='transform:scale(1);'><div></div></div>
