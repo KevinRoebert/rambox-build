@@ -1,1 +1,1 @@
-var firebaseCfg={apiKey:"AIzaSyAXedcpudidIUVhvn0jjrMHHWXv7YzWAR0",authDomain:"rambox-d1326.firebaseapp.com",databaseURL:"https://rambox-d1326.firebaseio.com",storageBucket:"rambox-d1326.appspot.com"};var auth0Cfg={clientID:"y9am0DVawe2tvlA3ucD7OufpJHZZMjsO",domain:"rambox.auth0.com"};
+var auth0Cfg={clientID:"y9am0DVawe2tvlA3ucD7OufpJHZZMjsO",domain:"rambox.auth0.com"};
