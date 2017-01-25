@@ -24,8 +24,7 @@ const config = new Config({
 		,hide_menu_bar: false
 		,skip_taskbar: true
 		,auto_launch: !isDev
-		// On Linux false because it's uncommon for apps on linux to stay in the taskbar on close
-		,keep_in_taskbar_on_close: process.platform !== 'linux'
+		,window_close_behavior: 'keep_in_tray'
 		,start_minimized: false
 		,systemtray_indicator: true
 		,master_password: false
@@ -44,7 +43,7 @@ const config = new Config({
 
 // Configure AutoLaunch
 const appLauncher = new AutoLaunch({
-	 name: 'Rambox'
+	 name: process.platform === 'darwin' ? 'Rambox.app' : 'Rambox'
 	,isHiddenOnLaunch: config.get('start_minimized')
 });
 config.get('auto_launch') && !isDev ? appLauncher.enable() : appLauncher.disable();
@@ -181,13 +180,13 @@ function createWindow () {
 	mainWindow.on('move', function(e) { if (!mainWindow.isMaximized()) config.set(mainWindow.getBounds()); });
 	mainWindow.on('app-command', (e, cmd) => {
 		// Navigate the window back when the user hits their mouse back button
-		if ( cmd === 'browser-backward' ) mainWindow.webContents.executeJavaScript('Ext.cq1("app-main").getActiveTab().goBack();');
+		if ( cmd === 'browser-backward' ) mainWindow.webContents.executeJavaScript('if(Ext.cq1("app-main")) Ext.cq1("app-main").getActiveTab().goBack();');
 		// Navigate the window forward when the user hits their mouse forward button
-		if ( cmd === 'browser-forward' ) mainWindow.webContents.executeJavaScript('Ext.cq1("app-main").getActiveTab().goForward();');
+		if ( cmd === 'browser-forward' ) mainWindow.webContents.executeJavaScript('if(Ext.cq1("app-main")) Ext.cq1("app-main").getActiveTab().goForward();');
 	});
 	mainWindow.on('focus', (e) => {
 		// Make focus on current service when user use Alt + Tab to activate Rambox
-		mainWindow.webContents.executeJavaScript('Ext.cq1("app-main").fireEvent("tabchange", Ext.cq1("app-main"), Ext.cq1("app-main").getActiveTab());');
+		mainWindow.webContents.executeJavaScript('if(Ext.cq1("app-main")) Ext.cq1("app-main").fireEvent("tabchange", Ext.cq1("app-main"), Ext.cq1("app-main").getActiveTab());');
 	});
 	// Emitted when the window is closed.
 	mainWindow.on('close', function(e) {
@@ -199,11 +198,19 @@ function createWindow () {
 					app.hide();
 					break;
 				case 'linux':
-					config.get('keep_in_taskbar_on_close') ? mainWindow.hide() : app.quit();
-					break;
 				case 'win32':
 				default:
-					config.get('keep_in_taskbar_on_close') ? mainWindow.minimize() : mainWindow.hide();
+					switch (config.get('window_close_behavior')) {
+						case 'keep_in_tray':
+							mainWindow.hide();
+							break;
+						case 'keep_in_tray_and_taskbar':
+							mainWindow.minimize();
+							break;
+						case 'quit':
+							app.quit();
+							break;
+					}
 					break;
 			}
 		}
@@ -297,28 +304,6 @@ if (shouldQuit) {
 	app.quit();
 	return;
 }
-
-var allowedURLCertificates = [];
-ipcMain.on('allowCertificate', (event, url) => {
-	allowedURLCertificates.push(require('url').parse(url).host);
-});
-app.on('certificate-error', function(event, webContents, url, error, certificate, callback) {
-	if ( allowedURLCertificates.indexOf(require('url').parse(url).host) >= 0 ) {
-		event.preventDefault();
-		callback(true);
-	} else {
-		callback(false);
-		dialog.showMessageBox(mainWindow, {
-			 title: 'Certification Warning'
-			,message: 'The service with the following URL has an invalid authority certification.\n\n'+url+'\n\nIf is a Custom Service, you have to remove it and add it again, enabling the "Trust invalid authority certificates" in the Options.'
-			,buttons: ['OK']
-			,type: 'warning'
-		}, function() {
-
-		});
-	}
-});
-
 
 // Code for downloading images as temporal files
 // Credit: Ghetto Skype (https://github.com/stanfieldr/ghetto-skype)
