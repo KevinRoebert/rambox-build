@@ -32,6 +32,8 @@ const config = new Config({
 		,proxy: false
 		,proxyHost: ''
 		,proxyPort: ''
+		,proxyLogin: ''
+		,proxyPassword: ''
 		,locale: 'en'
 		,enable_hidpi_support: false
 		,default_service: 'ramboxTab'
@@ -142,7 +144,7 @@ function createWindow () {
 	// Create the browser window using the state information
 	mainWindow = new BrowserWindow({
 		 title: 'Rambox'
-		,icon: __dirname + '/../resources/Icon.ico'
+		,icon: __dirname + '/../resources/Icon.' + (process.platform === 'linux' ? 'png' : 'ico')
 		,backgroundColor: '#FFF'
 		,x: config.get('x')
 		,y: config.get('y')
@@ -273,6 +275,7 @@ function createMasterPasswordWindow() {
 }
 
 function updateBadge(title) {
+	title = title.split(" - ")[0]; //Discard service name if present, could also contain digits
 	var messageCount = title.match(/\d+/g) ? parseInt(title.match(/\d+/g).join("")) : 0;
 
 	tray.setBadge(messageCount, config.get('systemtray_indicator'));
@@ -461,7 +464,16 @@ ipcMain.on('toggleWin', function(event, allwaysShow) {
 });
 
 // Proxy
-if ( config.get('proxy') ) app.commandLine.appendSwitch('proxy-server', config.get('proxyHost')+':'+config.get('proxyPort'));
+if ( config.get('proxy') ) {
+	app.commandLine.appendSwitch('proxy-server', config.get('proxyHost')+':'+config.get('proxyPort'));
+	app.on('login', (event, webContents, request, authInfo, callback) => {
+		if(!authInfo.isProxy)
+			return;
+			
+		event.preventDefault()
+		callback(config.get('proxyLogin'), config.get('proxyPassword'))
+	})
+}
 
 // Disable GPU Acceleration for Linux
 // to prevent White Page bug
