@@ -122,8 +122,7 @@
 		},
 		"directories": {
 			"buildResources": "resources/installer/",
-			"output": "dist/",
-			"app": "build/production/Rambox/"
+			"output": "dist/"
 		},
 		"publish": [
 			{
