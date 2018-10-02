@@ -4,6 +4,7 @@ const path = require('path');
 
 autoUpdater.logger = require("electron-log")
 autoUpdater.logger.transports.file.level = "debug"
+
 const initialize = (window) => {
 	const webContents = window.webContents;
 	const send = webContents.send.bind(window.webContents);
@@ -21,8 +22,8 @@ const initialize = (window) => {
 	autoUpdater.on('update-not-available', (...args) => autoUpdater.logger.info(...args));
 	autoUpdater.on('update-downloaded', (...args) => autoUpdater.logger.info(...args));
 	ipcMain.on('autoUpdater:check-for-updates', (...args) => {
-		autoUpdater.logger.info(...args);
 		autoUpdater.checkForUpdates();
+		autoUpdater.logger.info(...args);
 	});
 
 
