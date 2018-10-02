@@ -1,5 +1,10 @@
 !macro customInit
-  Rename $APPDATA\Roaming\Rambox $APPDATA\Roaming\RamboxBK
-  nsExec::Exec '"$LOCALAPPDATA\Rambox\Update.exe" --uninstall -s'
-  Rename $APPDATA\Roaming\RamboxBK $APPDATA\Roaming\Rambox
+	CreateDirectory $APPDATA\RamboxBK
+	CopyFiles $APPDATA\Rambox\*.* $APPDATA\RamboxBK
+	nsExec::Exec '"$LOCALAPPDATA\Rambox\Update.exe" --uninstall -s'
+!macroend
+
+!macro customInstall
+	CopyFiles $APPDATA\RamboxBK\*.* $APPDATA\Rambox
+	RMDir /r $APPDATA\RamboxBK
 !macroend
