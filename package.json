@@ -1,7 +1,7 @@
 {
 	"name": "Rambox",
 	"productName": "Rambox",
-	"version": "0.6.1",
+	"version": "0.6.0",
 	"description": "Free and Open Source messaging and emailing app that combines common web applications into one.",
 	"main": "electron/main.js",
 	"repository": {
@@ -63,7 +63,7 @@
 	},
 	"build": {
 		"productName": "Rambox",
-		"appId": "com.saenzramiro.rambox",
+		"appId": "com.grupovrs.ramboxce",
 		"asar": true,
 		"mac": {
 			"category": "public.app-category.productivity",
