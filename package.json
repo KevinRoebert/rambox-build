@@ -112,7 +112,15 @@
 			},
 			"artifactName": "Rambox-${version}-linux-${arch}.${ext}",
 			"target": [
-				"snap"
+				{
+					"target": "snap",
+					"arch": ["x64"]
+				},
+				"AppImage",
+				"deb",
+				"rpm",
+				"zip",
+				"tar.gz"
 			]
 		},
 		"directories": {
