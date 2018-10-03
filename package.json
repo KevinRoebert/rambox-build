@@ -115,12 +115,7 @@
 				{
 					"target": "snap",
 					"arch": ["x64"]
-				},
-				"AppImage",
-				"deb",
-				"rpm",
-				"zip",
-				"tar.gz"
+				}
 			]
 		},
 		"directories": {
