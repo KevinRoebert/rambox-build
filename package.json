@@ -48,7 +48,7 @@
 		"pack:linux64": "electron-packager \"./build/production/Rambox/\" \"Rambox\" --out=dist --platform=linux --arch=x64 --icon=resources/installer/Icon.ico --app-version=0.2.0 --build-version=64-bit --version-string.CompanyName=\"Rambox\" --version-string.ProductName=\"Rambox\" --asar --prune --overwrite",
 		"build": "npm run build:linux && npm run build:osx && npm run build:win",
 		"build:osx": "build --macos",
-		"build:linux": "build --linux --x64 --ia32 --publish=onTagOrDraft",
+		"build:linux": "build --linux --publish=onTagOrDraft",
 		"build:linux32": "build --linux --ia32 --publish=onTagOrDraft",
 		"build:linux64": "build --linux --x64 --publish=onTagOrDraft",
 		"build:win": "build --win --ia32 --x64",
