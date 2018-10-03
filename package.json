@@ -25,7 +25,7 @@
 		"hangouts",
 		"skype"
 	],
-	"author": "Rambox",
+	"author": "Rambox <support@rambox.pro>",
 	"license": "GPL-3.0",
 	"scripts": {
 		"start": "electron electron/main.js",
