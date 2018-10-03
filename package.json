@@ -114,10 +114,7 @@
 			"target": [
 				"snap",
 				"AppImage",
-				"deb",
-				"rpm",
-				"zip",
-				"tar.gz"
+				"deb"
 			]
 		},
 		"directories": {
