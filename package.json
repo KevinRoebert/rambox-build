@@ -1,7 +1,7 @@
 {
 	"name": "Rambox",
 	"productName": "Rambox",
-	"version": "0.6.1",
+	"version": "0.6.0",
 	"description": "Free and Open Source messaging and emailing app that combines common web applications into one.",
 	"main": "electron/main.js",
 	"repository": {
@@ -114,27 +114,44 @@
 			"target": [
 				{
 					"target": "snap",
-					"arch": ["x64"]
+					"arch": [
+						"x64"
+					]
 				},
 				{
 					"target": "AppImage",
-					"arch": ["x64", "ia32"]
+					"arch": [
+						"x64",
+						"ia32"
+					]
 				},
 				{
 					"target": "deb",
-					"arch": ["x64", "ia32"]
+					"arch": [
+						"x64",
+						"ia32"
+					]
 				},
 				{
 					"target": "rpm",
-					"arch": ["x64", "ia32"]
+					"arch": [
+						"x64",
+						"ia32"
+					]
 				},
 				{
 					"target": "zip",
-					"arch": ["x64", "ia32"]
+					"arch": [
+						"x64",
+						"ia32"
+					]
 				},
 				{
 					"target": "tar.gz",
-					"arch": ["x64", "ia32"]
+					"arch": [
+						"x64",
+						"ia32"
+					]
 				}
 			]
 		},
@@ -158,9 +175,7 @@
 		"csvjson": "4.3.3",
 		"electron": "^2.0.8",
 		"electron-builder": "^20.28.3",
-		"electron-builder-squirrel-windows": "^20.28.3",
 		"electron-packager": "^12.1.0",
-		"electron-squirrel-startup": "^1.0.0",
 		"mocha": "^5.2.0",
 		"spectron": "^3.8.0"
 	},
