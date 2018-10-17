@@ -1,7 +1,7 @@
 {
 	"name": "Rambox",
 	"productName": "Rambox",
-	"version": "0.6.1",
+	"version": "0.6.2",
 	"description": "Free and Open Source messaging and emailing app that combines common web applications into one.",
 	"main": "electron/main.js",
 	"repository": {
@@ -108,7 +108,7 @@
 			"desktop": {
 				"Terminal": "false",
 				"Type": "Application",
-				"Categories": "GTK;GNOME;Utility;Office;Email;Chat;InstantMessaging;"
+				"Categories": "GTK;GNOME;Network;Email;Chat;InstantMessaging;"
 			},
 			"artifactName": "Rambox-${version}-linux-${arch}.${ext}",
 			"target": [
