@@ -1,7 +1,7 @@
 {
 	"name": "Rambox",
 	"productName": "Rambox",
-	"version": "0.6.2",
+	"version": "0.6.3",
 	"description": "Free and Open Source messaging and emailing app that combines common web applications into one.",
 	"main": "electron/main.js",
 	"repository": {
@@ -104,7 +104,7 @@
 			"runAfterFinish": true
 		},
 		"linux": {
-			"category": "Office",
+			"category": "Network",
 			"desktop": {
 				"Terminal": "false",
 				"Type": "Application",
@@ -173,7 +173,7 @@
 		"chai": "3.5.0",
 		"crowdin": "1.0.0",
 		"csvjson": "4.3.3",
-		"electron": "^2.0.8",
+		"electron": "^2.0.14",
 		"electron-builder": "^20.28.3",
 		"electron-packager": "^12.1.0",
 		"mocha": "^5.2.0",
