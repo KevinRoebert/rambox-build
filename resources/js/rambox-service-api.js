@@ -13,7 +13,7 @@ const { ContextMenuBuilder, ContextMenuListener } = require('electron-contextmen
 window.rambox = {};
 
 /**
- * Sets the unraed count of the tab.
+ * Sets the unread count of the tab.
  *
  * @param {*} count	The unread count
  */
@@ -54,4 +54,20 @@ Notification.requestPermission = NativeNotification.requestPermission.bind(Notif
 window.rambox.contextMenuBuilder = new ContextMenuBuilder();
 window.rambox.contextMenuListener = new ContextMenuListener(function(event, info) {
 	window.rambox.contextMenuBuilder.showPopupMenu(info);
+});
+
+document.addEventListener("keydown", (event) => {
+	if (event.type !== 'keydown' || event.key === 'z' || event.key === 'a' ) return; // event used by default
+	var msg = {
+		code: event.code,
+		key: event.key,
+		shiftKey: event.shiftKey,
+		altKey: event.altKey,
+		ctrlKey: event.ctrlKey,
+		metaKey: event.metaKey,
+		repeat: event.repeat,
+		keyCode: event.keyCode,
+		charCode: event.charCode
+	};
+	ipcRenderer.sendToHost('keydown', msg)
 });
