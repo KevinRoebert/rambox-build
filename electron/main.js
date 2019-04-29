@@ -58,6 +58,8 @@ if (config.get('enable_hidpi_support') && (process.platform === 'win32')) {
 	app.commandLine.appendSwitch('force-device-scale-factor', '1')
 }
 
+app.commandLine.appendSwitch('lang', config.get('locale') === 'en' ? 'en-US' :  config.get('locale'));
+
 // Because we build it using Squirrel, it will assign UserModelId automatically, so we match it here to display notifications correctly.
 // https://github.com/electron-userland/electron-builder/issues/362
 app.setAppUserModelId('com.grupovrs.ramboxce');
@@ -66,8 +68,9 @@ app.setAppUserModelId('com.grupovrs.ramboxce');
 const appMenu = require('./menu')(config);
 
 // Configure AutoLaunch
+let appLauncher;
 if ( !isDev ) {
-	const appLauncher = new AutoLaunch({
+	appLauncher = new AutoLaunch({
 		 name: 'Rambox'
 		,isHidden: config.get('start_minimized')
 	});
@@ -189,8 +192,6 @@ function createWindow () {
 				default:
 					switch (config.get('window_close_behavior')) {
 						case 'keep_in_tray':
-							mainWindow.hide();
-							break;
 						case 'keep_in_tray_and_taskbar':
 							mainWindow.minimize();
 							break;
@@ -201,6 +202,15 @@ function createWindow () {
 					break;
 			}
 		}
+	});
+	mainWindow.on('minimize', function(e) {
+		if ( config.get('window_close_behavior') === 'keep_in_tray' ) mainWindow.setSkipTaskbar(true);
+	});
+	mainWindow.on('restore', function(e) {
+		if ( config.get('window_display_behavior') === 'show_taskbar' ) mainWindow.setSkipTaskbar(false);
+	});
+	mainWindow.on('show', function(e) {
+		if ( config.get('window_display_behavior') !== 'show_trayIcon' ) mainWindow.setSkipTaskbar(false);
 	});
 	mainWindow.on('closed', function(e) {
 		mainWindow = null;
@@ -245,7 +255,10 @@ ipcMain.on('setBadge', function(event, messageCount, value) {
 ipcMain.on('getConfig', function(event, arg) {
 	event.returnValue = config.store;
 });
-
+ipcMain.on('sConfig', function(event, values) {
+	config.set(values);
+	event.returnValue = true;
+});
 ipcMain.on('setConfig', function(event, values) {
 	config.set(values);
 
@@ -255,7 +268,7 @@ ipcMain.on('setConfig', function(event, values) {
 	// always_on_top
 	mainWindow.setAlwaysOnTop(values.always_on_top);
 	// auto_launch
-	values.auto_launch ? appLauncher.enable() : appLauncher.disable();
+	if ( !isDev ) values.auto_launch ? appLauncher.enable() : appLauncher.disable();
 	// systemtray_indicator
 	updateBadge(mainWindow.getTitle());
 
@@ -294,6 +307,7 @@ ipcMain.on('validateMasterPassword', function(event, pass) {
 
 // Handle Service Notifications
 ipcMain.on('setServiceNotifications', function(event, partition, op) {
+	if ( partition === null ) return;
 	session.fromPartition(partition).setPermissionRequestHandler(function(webContents, permission, callback) {
 		if (permission === 'notifications') return callback(op);
 		callback(true)
@@ -398,6 +412,7 @@ ipcMain.on('image:popup', function(event, url, partition) {
 });
 
 ipcMain.on('toggleWin', function(event, allwaysShow) {
+	if ( config.get('window_display_behavior') !== 'show_trayIcon' ) mainWindow.setSkipTaskbar(false);
 	if ( !mainWindow.isMinimized() && mainWindow.isMaximized() && mainWindow.isVisible() ) { // Maximized
 		!allwaysShow ? mainWindow.close() : mainWindow.show();
 	} else if ( mainWindow.isMinimized() && !mainWindow.isMaximized() && !mainWindow.isVisible() ) { // Minimized
