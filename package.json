@@ -1,7 +1,7 @@
 {
 	"name": "Rambox",
 	"productName": "Rambox",
-	"version": "0.7.6",
+	"version": "0.7.7",
 	"description": "Free and Open Source messaging and emailing app that combines common web applications into one.",
 	"main": "electron/main.js",
 	"repository": {
@@ -124,7 +124,9 @@
 			],
 			"plugs": [
 				"default",
-				"camera"
+				"camera",
+				"audio-record",
+				"removable-media"
 			]
 		},
 		"linux": {
