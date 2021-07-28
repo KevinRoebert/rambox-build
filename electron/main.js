@@ -15,6 +15,10 @@ const updater = require('./updater');
 var fs = require("fs");
 const path = require('path');
 
+// Disk usage:
+const disk = require('diskusage');
+const appPath = app.getAppPath();
+
 if ( isDev ) app.getVersion = function() { return require('../package.json').version; }; // FOR DEV ONLY, BECAUSE IN DEV RETURNS ELECTRON'S VERSION
 
 // Initial Config
@@ -98,10 +102,13 @@ function createWindow () {
 		,show: !config.get('start_minimized')
 		,acceptFirstMouse: true
 		,webPreferences: {
-			plugins: true
+			 enableRemoteModule: true
+			,plugins: true
 			,partition: 'persist:rambox'
 			,nodeIntegration: true
 			,webviewTag: true
+			,contextIsolation: false
+			,spellcheck: false
 		}
 	});
 
@@ -250,6 +257,40 @@ function updateBadge(title) {
 	if ( messageCount > 0 && !mainWindow.isFocused() && !config.get('dont_disturb') && config.get('flash_frame') ) mainWindow.flashFrame(true);
 }
 
+function formatBytes(bytes, decimals = 2) {
+	if (bytes === 0) return '0 Bytes';
+
+	const k = 1024;
+	const dm = decimals < 0 ? 0 : decimals;
+	const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+async function availableSpaceWatchDog() {
+	// optionally render this information also in rambox window
+	try {
+		const { available } = await disk.check(appPath);
+		if (available < 1073741824) { // 1 GB
+			const options = {
+				type: 'warning',
+				buttons: ['OK, quit'],
+				defaultId: 0,
+				title: `Running out of disk space! - Rambox shutting down`,
+				detail: `You've got just ${formatBytes(available)} space left.\n\nRambox has been frozen to prevent settings corruption.\n\nOnce you quit this dialog, Rambox will shutdown.\n\n1 GB of avalable disk space is required.\nFree up space on partition where Rambox is installed then start the app again.\n\nRambox path: \n${appPath}`,
+				message: `Running out of disk space! - Rambox shutting down`,
+			};
+		
+			dialog.showMessageBoxSync(null, options);
+			app.quit(); 
+		}
+	} catch (err) {
+		console.error(err)
+	}
+}
+
 ipcMain.on('setBadge', function(event, messageCount, value) {
 	mainWindow.setOverlayIcon(nativeImage.createFromDataURL(value), messageCount.toString());
 });
@@ -347,6 +388,85 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
 	}
 });
 
+// ALLOWED URLS POPUPS
+let allowPopUp = [
+	'feedly.com/v3/auth/',
+	'identity.linuxfoundation.org/cas/login',
+	'auth.missiveapp.com',
+	'accounts.google.com/AccountChooser',
+	'facebook.com/v3.1/dialog/oauth?',
+	'accounts.google.com/o/oauth2',
+	'app.slack.com/files/import/gdrive',
+	'spikenow.com/s/account',
+	'app.mixmax.com/_oauth/google',
+	'officeapps.live.com',
+	'dropbox.com/profile_services/start_auth_flow',
+	'facebook.com/v3.2/dialog/oauth?',
+	'notion.so/googlepopupredirect',
+	'zoom.us/office365',
+	'figma.com/start_google_sso',
+	'mail.google.com/mail',
+	'app.slack.com/free-willy/',
+	'messenger.com/videocall',
+	'api.moo.do',
+	'manychat.com/fb?popup',
+	'=?print=true' // esta ultima checkea como anda imprimir un pedf desde gmail, si no va bie sacala
+];
+
+app.on('web-contents-created', (webContentsCreatedEvent, contents) => {
+	if (contents.getType() !== 'webview') return;
+	// Block some Deep links to prevent that open its app (Ex: Slack)
+	contents.on('will-navigate', (event, url) => url.substring(0, 8) === 'slack://' && event.preventDefault());
+	// New Window handler
+	contents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures, referrer, postBody) => {
+		// If the url is about:blank we allow the window and handle it in 'did-create-window'
+		if (['about:blank', 'about:blank#blocked'].includes(url)) {
+			event.preventDefault();
+			Object.assign(options, { show: false });
+			const win = new BrowserWindow(options);
+			win.center();
+			let once = false;
+			win.webContents.on('will-navigate', (e, nextURL) => {
+				if (once) return;
+				if (['about:blank', 'about:blank#blocked'].includes(nextURL)) return;
+				once = true;
+				let allow = false;
+				allowPopUp.forEach(url => nextURL.indexOf(url) > -1 && (allow = true));
+				// If the url is in aboutBlankOnlyWindow we handle this as a popup window
+				if (allow) return win.show();
+				shell.openExternal(nextURL);
+				win.close()
+			})
+			event.newGuest = win;
+			return;
+		}
+		// We check if url is in the allowPopUpLoginURLs or allowForegroundTabURLs in Firebase to open a as a popup,
+		// if it is not we send this to the app
+		let allow = false;
+		allowPopUp.forEach(allowed => url.indexOf(allowed) > -1 && (allow = true));
+		if (allow) return;
+		shell.openExternal(url);
+		event.preventDefault();
+	});
+	contents.on('did-create-window', (win, details) => {
+		// Here we center the new window.
+		win.center();
+		// The following code is for handling the about:blank cases only.
+		if (!['about:blank', 'about:blank#blocked'].includes(details.url)) return;
+		let once = false;
+		win.webContents.on('will-navigate', (e, nextURL) => {
+			if (once) return;
+			if (['about:blank', 'about:blank#blocked'].includes(nextURL)) return;
+			once = true;
+			let allow = false;
+			allowPopUp.forEach(url => nextURL.indexOf(url) > -1 && (allow = true));
+			// If the url is in aboutBlankOnlyWindow we handle this as a popup window
+			if (allow) return win.show();
+			shell.openExternal(url);
+			win.close();
+		});
+	});
+});
 
 // Code for downloading images as temporal files
 // Credit: Ghetto Skype (https://github.com/stanfieldr/ghetto-skype)
@@ -474,8 +594,8 @@ if ( config.get('disable_gpu') ) app.disableHardwareAcceleration();
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
 	config.get('master_password') ? createMasterPasswordWindow() : createWindow();
+	setInterval(availableSpaceWatchDog, 1000 * 60);
 });
-
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
 	// On OS X it is common for applications and their menu bar
