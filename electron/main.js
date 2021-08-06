@@ -1,6 +1,6 @@
 'use strict';
 
-const {app, protocol, BrowserWindow, dialog, shell, Menu, ipcMain, nativeImage, session} = require('electron');
+const {app, BrowserWindow, shell, Menu, ipcMain, nativeImage, session} = require('electron');
 // Tray
 const tray = require('./tray');
 // AutoLaunch
@@ -62,6 +62,10 @@ if (config.get('enable_hidpi_support') && (process.platform === 'win32')) {
 }
 
 app.commandLine.appendSwitch('lang', config.get('locale') === 'en' ? 'en-US' :  config.get('locale'));
+
+// Temporary fix to load Twitter and other websites inside webviews
+// Bug related with Electron: https://github.com/electron/electron/issues/25469
+app.commandLine.appendSwitch('disable-features', 'CrossOriginOpenerPolicy');
 
 // Because we build it using Squirrel, it will assign UserModelId automatically, so we match it here to display notifications correctly.
 // https://github.com/electron-userland/electron-builder/issues/362
@@ -229,7 +233,8 @@ function createMasterPasswordWindow() {
 		 backgroundColor: '#0675A0'
 		,frame: false
 		,webPreferences: {
-			nodeIntegration: true
+			 nodeIntegration: true
+			,enableRemoteModule: true
 		}
 	});
 	// Open the DevTools.
