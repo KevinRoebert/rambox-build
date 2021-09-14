@@ -1,0 +1,57 @@
+name: Publish Binaries
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        job_name:
+          #- linux
+          - osx
+          #- win
+        include:
+          #- job_name: linux
+            #os: ubuntu-latest
+          - job_name: osx
+            os: macos-11
+          #- job_name: win
+            #os: windows-latest
+
+    name: '${{ matrix.job_name }}'
+    runs-on: '${{ matrix.os }}'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14.16.1
+      - run: npm i
+
+      # Build Linux
+      #- name: Build on Linux
+        #run: 'npm run build:linux'
+        #if: success() && matrix.job_name == 'linux'
+
+      # Build OSX
+      - name: Build on OSX
+        run: 'npm run build:osx'
+        if: success() && matrix.job_name == 'osx'
+
+      - name: Upload Package
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ github.workspace }}/dist/Rambox-*-mac-universal.zip
+            ${{ github.workspace }}/dist/Rambox-*-mac-universal.dmg
+            ${{ github.workspace }}/dist/Rambox-*-mac-universal.dmg.blockmap
+            ${{ github.workspace }}/dist/latest-mac.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build Windows
+      #- name: Build on Windows
+        #run: 'npm run build:win'
+        #if: success() && matrix.job_name == 'win'

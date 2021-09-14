@@ -1,0 +1,69 @@
+name: Build rambox
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        job_name:
+          #- linux
+          - osx
+          #- win
+        include:
+          #- job_name: linux
+            #os: ubuntu-latest
+          - job_name: osx
+            os: macos-11
+          #- job_name: win
+            #os: windows-latest
+
+    name: '${{ matrix.job_name }}'
+    runs-on: '${{ matrix.os }}'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14.16.1
+      - run: npm i
+
+      # Build Linux
+      #- name: Build on Linux
+        #run: 'npm run build:linux'
+        #if: success() && matrix.job_name == 'linux'
+
+      # Build OSX
+      - name: Build on OSX
+        run: 'npm run build:osx'
+        if: success() && matrix.job_name == 'osx'
+
+      - name: Publish zip
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-mac-universal.zip
+          name: Rambox-mac-universal.zip
+
+      - name: Publish dmg
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-mac-universal.dmg
+          name: Rambox-mac-universal.dmg
+
+      - name: Publish blockmap
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-mac-universal.dmg.blockmap
+          name: Rambox-mac-universal.dmg.blockmap
+
+      - name: Publish yml
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/latest-mac.yml
+          name: latest-mac.yml
+
+      # Build Windows
+      #- name: Build on Windows
+        #run: 'npm run build:win'
+        #if: success() && matrix.job_name == 'win'
