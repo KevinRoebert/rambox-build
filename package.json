@@ -49,9 +49,9 @@
 		"pack:linux32": "electron-packager \"./build/production/Rambox/\" \"Rambox\" --out=dist --platform=linux --arch=ia32 --icon=resources/installer/Icon.ico --app-version=0.2.0 --build-version=64-bit --version-string.CompanyName=\"Rambox\" --version-string.ProductName=\"Rambox\" --asar --prune --overwrite",
 		"pack:linux64": "electron-packager \"./build/production/Rambox/\" \"Rambox\" --out=dist --platform=linux --arch=x64 --icon=resources/installer/Icon.ico --app-version=0.2.0 --build-version=64-bit --version-string.CompanyName=\"Rambox\" --version-string.ProductName=\"Rambox\" --asar --prune --overwrite",
 		"build": "npm run build:linux && npm run build:osx && npm run build:win",
-        "build:osx": "electron-builder -p never --macos --universal",
-        "build:osx64": "electron-builder --macos --x64",
-        "build:osxarm64": "electron-builder --macos --arm64",
+		"build:osx": "electron-builder -p never --macos --universal",
+		"build:osx64": "electron-builder --macos --x64",
+		"build:osxarm64": "electron-builder --macos --arm64",
 		"build:linux": "electron-builder --linux --publish=onTagOrDraft",
 		"build:linux32": "electron-builder --linux --ia32 --publish=onTagOrDraft",
 		"build:linux64": "electron-builder --linux --x64 --publish=onTagOrDraft",
@@ -69,9 +69,9 @@
 		"productName": "Rambox",
 		"appId": "com.grupovrs.ramboxce",
 		"asar": true,
-		"electronVersion": "11.4.10",
+		"electronVersion": "13.6.3",
 		"electronDownload": {
-			"version": "11.4.10"
+			"version": "13.6.3"
 		},
 		"mac": {
 			"category": "public.app-category.productivity",
@@ -197,7 +197,7 @@
 			"buildResources": "resources/installer/",
 			"output": "dist/"
 		},
-        "publish": [
+		"publish": [
 			{
 				"provider": "github",
 				"owner": "ramboxapp",
@@ -211,12 +211,12 @@
 		"chai": "3.5.0",
 		"crowdin": "1.0.0",
 		"csvjson": "4.3.3",
-		"electron": "11.4.10",
-		"electron-builder": "22.14.2",
+		"electron": "13.6.3",
+		"electron-builder": "22.14.5",
 		"electron-notarize": "1.0.0",
 		"electron-packager": "15.1.0",
 		"mocha": "5.2.0",
-		"spectron": "^13.0.0"
+		"spectron": "^15.0.0"
 	},
 	"dependencies": {
 		"@exponent/electron-cookies": "2.0.0",
