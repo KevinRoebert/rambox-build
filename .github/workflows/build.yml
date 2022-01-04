@@ -9,16 +9,16 @@ jobs:
       fail-fast: false
       matrix:
         job_name:
-          #- linux
+          - linux
           - osx
-          #- win
+          - win
         include:
-          #- job_name: linux
-            #os: ubuntu-latest
+          - job_name: linux
+            os: ubuntu-latest
           - job_name: osx
             os: macos-11
-          #- job_name: win
-            #os: windows-latest
+          - job_name: win
+            os: windows-latest
 
     name: '${{ matrix.job_name }}'
     runs-on: '${{ matrix.os }}'
@@ -30,40 +30,170 @@ jobs:
       - run: npm i
 
       # Build Linux
-      #- name: Build on Linux
-        #run: 'npm run build:linux'
-        #if: success() && matrix.job_name == 'linux'
+      - name: Build on Linux
+        run: 'npm run build:linux'
+        if: success() && matrix.job_name == 'linux'
+
+      - name: LINUX Publish zip x64
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-x64.zip
+          name: Rambox-linux-x64.zip
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish zip ia32
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-ia32.zip
+          name: Rambox-linux-ia32.zip
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish tar.gz x64
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-x64.tar.gz
+          name: Rambox-linux-x64.tar.gz
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish tar.gz ia32
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-ia32.tar.gz
+          name: Rambox-linux-ia32.tar.gz
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish deb amd64
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-amd64.deb
+          name: Rambox-linux-amd64.deb
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish deb i386
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-i386.deb
+          name: Rambox-linux-i386.deb
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish snap x64
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-x86_64.AppImage
+          name: Rambox-linux-x86_64.AppImage
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish AppImage x64
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-x86_64.AppImage
+          name: Rambox-linux-x86_64.AppImage
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish AppImage x86_64
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-i386.AppImage
+          name: Rambox-linux-i386.AppImage
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish rpm x86_64
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-x86_64.rpm
+          name: Rambox-linux-x86_64.rpm
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish rpm i686
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-linux-i686.rpm
+          name: Rambox-linux-i686.rpm
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish yml
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/latest-linux.yml
+          name: latest-linux.yml
+        if: matrix.job_name == 'linux'
+
+      - name: LINUX Publish yml ia32
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/latest-linux-ia32.yml
+          name: latest-linux-ia32.yml
+        if: matrix.job_name == 'linux'
 
       # Build OSX
       - name: Build on OSX
         run: 'npm run build:osx'
         if: success() && matrix.job_name == 'osx'
 
-      - name: Publish zip
+      - name: OSX Publish zip
         uses: actions/upload-artifact@v2
         with:
           path: ${{ github.workspace }}/dist/Rambox-*-mac-universal.zip
           name: Rambox-mac-universal.zip
+        if: matrix.job_name == 'osx'
 
-      - name: Publish dmg
+      - name: OSX Publish dmg
         uses: actions/upload-artifact@v2
         with:
           path: ${{ github.workspace }}/dist/Rambox-*-mac-universal.dmg
           name: Rambox-mac-universal.dmg
+        if: matrix.job_name == 'osx'
 
-      - name: Publish blockmap
+      - name: OSX Publish blockmap
         uses: actions/upload-artifact@v2
         with:
           path: ${{ github.workspace }}/dist/Rambox-*-mac-universal.dmg.blockmap
           name: Rambox-mac-universal.dmg.blockmap
+        if: matrix.job_name == 'osx'
 
-      - name: Publish yml
+      - name: OSX Publish yml
         uses: actions/upload-artifact@v2
         with:
           path: ${{ github.workspace }}/dist/latest-mac.yml
           name: latest-mac.yml
+        if: matrix.job_name == 'osx'
 
       # Build Windows
-      #- name: Build on Windows
-        #run: 'npm run build:win'
-        #if: success() && matrix.job_name == 'win'
+      - name: Build on Windows
+        run: 'npm run build:win'
+        if: success() && matrix.job_name == 'win'
+
+      - name: WIN Publish exe
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-win.exe
+          name: Rambox-win.exe
+        if: matrix.job_name == 'win'
+
+      - name: WIN Publish zip x64
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-win-x64.zip
+          name: Rambox-win-x64.zip
+        if: matrix.job_name == 'win'
+
+      - name: WIN Publish zip ia32
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-win-ia32.zip
+          name: Rambox-win-ia32.zip
+        if: matrix.job_name == 'win'
+
+      - name: WIN Publish blockmap
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/Rambox-*-win.exe.blockmap
+          name: Rambox-win.exe.blockmap
+        if: matrix.job_name == 'win'
+
+      - name: WIN Publish yml
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/dist/latest.yml
+          name: latest.yml
+        if: matrix.job_name == 'win'
