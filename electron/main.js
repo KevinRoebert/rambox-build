@@ -143,7 +143,7 @@ function createWindow () {
 
 	tray.create(mainWindow, config);
 
-	if ( process.argv.indexOf('--without-update') === -1 ) updater.initialize(mainWindow);
+	updater.initialize(mainWindow);
 
 	// Open links in default browser
 	mainWindow.webContents.on('new-window', function(e, url, frameName, disposition, options) {
@@ -575,6 +575,53 @@ ipcMain.on('toggleWin', function(event, allwaysShow) {
 		mainWindow.restore();
 	}
 });
+
+// ScreenShare
+ipcMain.on('screenShare:show', (event, screenList) => {
+	let tmpWindow = new BrowserWindow({
+		title: 'Rambox - Select screen',
+		width: 600,
+		height: 500,
+		icon: __dirname + '/../resources/Icon.ico',
+		autoHideMenuBar: true,
+		transparent: true,
+		show: true,
+		frame: false,
+		hasShadow: true,
+		webPreferences: {
+			nodeIntegration: true,
+			contextIsolation: false,
+		},
+	});
+
+	const close = () => {
+		tmpWindow.close();
+		tmpWindow = null;
+	};
+
+	const onCancel = () => {
+		event.sender.send('screenShare:cancel');
+		close();
+	};
+
+	const onShare = (_, shareId) => {
+		event.sender.send('screenShare:share', shareId);
+		close();
+	};
+
+	ipcMain.handle('screenShare:getSources', () => screenList);
+	ipcMain.on('screenShare:cancelSelection', onCancel);
+	ipcMain.on('screenShare:selectScreen', onShare);
+
+	tmpWindow.on('closed', () => {
+		ipcMain.removeHandler('screenShare:getSources');
+		ipcMain.removeAllListeners('screenShare:cancelSelection');
+		ipcMain.removeAllListeners('screenShare:selectScreen');
+	});
+
+	tmpWindow.loadFile(__dirname + '/../screenselector.html');
+});
+
 
 // Proxy
 if ( config.get('proxy') ) {

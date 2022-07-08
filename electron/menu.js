@@ -1,5 +1,5 @@
 'use strict';
-const os = require('os');
+
 const electron = require('electron');
 const { systemPreferences } = require('electron')
 const app = electron.app;
@@ -21,48 +21,13 @@ module.exports = function(config) {
 	const locale = require('../resources/languages/'+config.get('locale'));
 	const helpSubmenu = [
 		{
-			label: `&`+locale['menu.help[0]'],
-			click() {
-				shell.openExternal('https://rambox.pro');
-			}
-		},
-		{
-			label: `&Facebook`,
-			click() {
-				shell.openExternal('https://www.facebook.com/ramboxapp');
-			}
-		},
-		{
-			label: `&Twitter`,
-			click() {
-				shell.openExternal('https://www.twitter.com/ramboxapp');
-			}
-		},
-		{
 			label: `&GitHub`,
 			click() {
-				shell.openExternal('https://github.com/ramboxapp/community-edition');
+				shell.openExternal('https://github.com/KevinRoebert/community-edition');
 			}
 		},
 		{
 			type: 'separator'
-		},
-		{
-			label: '&'+locale['menu.help[1]'],
-			click() {
-				const body = `
-	<!-- Please describe here your issue and steps to reproduce it. -->
-
-
-
-	<!-- DON'T REMOVE THE FOLLOWING LINES -->
-	-
-	> ${app.getName()} ${app.getVersion()}
-	> Electron ${process.versions.electron}
-	> ${process.platform} ${process.arch} ${os.release()}`;
-
-				shell.openExternal(`https://github.com/ramboxapp/community-edition/issues/new?body=${encodeURIComponent(body)}`);
-			}
 		},
 		{
 			label: `&Tools`,
@@ -92,15 +57,6 @@ module.exports = function(config) {
 				}
 			]
 		},
-		{
-			type: 'separator'
-		},
-		{
-			label: `&`+locale['menu.help[3]'],
-			click() {
-				shell.openExternal('https://rambox.app/donate.html');
-			}
-		}
 	];
 
 	let tpl = [

@@ -1,17 +1,17 @@
 {
 	"name": "Rambox",
 	"productName": "Rambox",
-	"version": "0.7.9",
+	"version": "0.8.1",
 	"description": "Free and Open Source messaging and emailing app that combines common web applications into one.",
 	"main": "electron/main.js",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ramboxapp/community-edition.git"
+		"url": "https://github.com/KevinRoebert/community-edition.git"
 	},
 	"bugs": {
-		"url": "https://github.com/ramboxapp/community-edition/issues"
+		"url": "https://github.com/KevinRoebert/community-edition/issues"
 	},
-	"homepage": "https://rambox.app",
+	"homepage": "https://github.com/KevinRoebert/community-edition",
 	"keywords": [
 		"Rambox",
 		"messaging",
@@ -25,13 +25,12 @@
 		"hangouts",
 		"skype"
 	],
-	"author": "Rambox LLC <support@rambox.app>",
+	"author": "KR <28713602+KevinRoebert@users.noreply.github.com>",
 	"license": "GPL-3.0",
 	"scripts": {
 		"start": "electron electron/main.js",
 		"start:debug": "electron electron/main.js --enable-logging",
 		"dev": "electron electron/main.js",
-		"test": "./node_modules/.bin/mocha test/tests/**/*.spec.js",
 		"sencha:clean": "rm -rf ./build/production",
 		"sencha:compile": "sencha app build && npm --prefix ./build/production/Rambox/ install ./build/production/Rambox/",
 		"sencha:compile:build": "sencha app build",
@@ -39,8 +38,8 @@
 		"clean:osx": "rm -rf ./dist/Rambox-darwin-*",
 		"clean:win": "rm -rf ./dist/Rambox-win32-*",
 		"pack": "npm run pack:osx && npm run pack:win",
-        "pack:osx": "npm run pack:osx64 && npm run pack:osxarm64",
-        "pack:osx64": "electron-packager \"./build/production/Rambox/\" \"Rambox\" --out=dist --platform=darwin --arch=x64 --icon=resources/installer/Icon.icns --app-version=0.2.0 --build-version=64-bit --version-string.CompanyName=\"Rambox\" --version-string.ProductName=\"Rambox\" --asar --prune --overwrite",
+		"pack:osx": "npm run pack:osx64 && npm run pack:osxarm64",
+		"pack:osx64": "electron-packager \"./build/production/Rambox/\" \"Rambox\" --out=dist --platform=darwin --arch=x64 --icon=resources/installer/Icon.icns --app-version=0.2.0 --build-version=64-bit --version-string.CompanyName=\"Rambox\" --version-string.ProductName=\"Rambox\" --asar --prune --overwrite",
 		"pack:osxarm64": "electron-packager \"./build/production/Rambox/\" \"Rambox\" --out=dist --platform=darwin --arch=arm64 --icon=resources/installer/Icon.icns --app-version=0.2.0 --build-version=64-bit --version-string.CompanyName=\"Rambox\" --version-string.ProductName=\"Rambox\" --asar --prune --overwrite",
 		"pack:win": "npm run pack:win32 && npm run pack:win64",
 		"pack:win32": "electron-packager \"./build/production/Rambox/\" \"Rambox\" --out=dist --platform=win32 --arch=ia32 --icon=resources/installer/Icon.ico --app-version=0.2.0 --build-version=32-bit --version-string.CompanyName=\"Rambox\" --version-string.ProductName=\"Rambox\" --asar --prune --overwrite",
@@ -58,7 +57,7 @@
 		"build:win": "electron-builder --win --ia32 --x64 --publish never",
 		"build:win32": "electron-builder --win --ia32 --publish never",
 		"build:win64": "electron-builder --win --x64 --publish never",
-		"setup:osx": "npm run sencha:clean && npm run sencha:compile && npm run clean:osx && npm run pack:osx && npm run build:osx && npm run build:osx64 && && npm run build:osxarm64",
+		"setup:osx": "npm run sencha:clean && npm run sencha:compile && npm run clean:osx && npm run pack:osx && npm run build:osx && npm run build:osx64 && npm run build:osxarm64",
 		"setup:win": "npm run sencha:clean && npm run sencha:compile && npm run clean:win && npm run pack:win && npm run build:win",
 		"all:win": "npm run sencha:clean && npm run sencha:compile && npm run clean:win && npm run pack:win && npm run zip:win32 && npm run zip:win64 && npm run build:win",
 		"all:linux": "npm run sencha:clean && npm run sencha:compile && npm run build:linux",
@@ -77,7 +76,12 @@
 			"category": "public.app-category.productivity",
 			"artifactName": "Rambox-${version}-mac-${arch}.${ext}",
 			"target": [
-				"default"
+				{
+					"target": "default",
+					"arch": [
+						"universal"
+					]
+				}
 			],
 			"hardenedRuntime": true,
 			"gatekeeperAssess": false,
@@ -107,7 +111,6 @@
 			]
 		},
 		"win": {
-			"publisherName": "Rambox LLC",
 			"artifactName": "Rambox-${version}-win-${arch}.${ext}",
 			"target": [
 				"nsis",
@@ -196,15 +199,7 @@
 		"directories": {
 			"buildResources": "resources/installer/",
 			"output": "dist/"
-		},
-		"publish": [
-			{
-				"provider": "github",
-				"owner": "ramboxapp",
-				"repo": "community-edition",
-				"vPrefixedTagName": false
-			}
-		]
+		}
 	},
 	"devDependencies": {
 		"asar": "0.12.4",
@@ -212,22 +207,18 @@
 		"crowdin": "1.0.0",
 		"csvjson": "4.3.3",
 		"electron": "13.6.3",
-		"electron-builder": "22.14.5",
-		"electron-notarize": "1.0.0",
-		"electron-packager": "15.1.0",
-		"mocha": "5.2.0",
-		"spectron": "^15.0.0"
+		"electron-builder": "23.3.0",
+		"electron-packager": "15.5.1",
+		"mocha": "5.2.0"
 	},
 	"dependencies": {
 		"@exponent/electron-cookies": "2.0.0",
-		"auth0-js": "9.13.2",
 		"auto-launch-patched": "5.0.2",
-		"crypto": "1.0.1",
 		"electron-contextmenu-wrapper": "git+https://github.com/ramboxapp/electron-contextmenu-wrapper.git",
 		"electron-is-dev": "1.2.0",
 		"electron-log": "4.3.0",
 		"electron-store": "6.0.1",
-		"electron-updater": "4.3.5",
+		"electron-updater": "4.5.2",
 		"is-online": "8.2.0",
 		"mime": "2.3.1",
 		"mousetrap": "1.6.3",
@@ -237,6 +228,6 @@
 		"tmp": "0.0.28"
 	},
 	"volta": {
-		"node": "14.16.1"
+		"node": "18.5.0"
 	}
 }
